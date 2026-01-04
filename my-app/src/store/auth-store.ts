@@ -18,6 +18,7 @@ interface AuthActions {
     expireIn?: number
   ) => void;
   logout: () => void;
+  isTokenExpired: () => boolean;
   refreshUserToken: () => Promise<void>;
 }
 
@@ -31,6 +32,14 @@ const useAuthStore = create<AuthStore>()(
       setAuth: (token, refresh_token, expireIn) =>
         set({ token, refresh_token, expireIn }),
       logout: () => set({ token: null, refresh_token: null }),
+      isTokenExpired: () => {
+        const expireIn = get().expireIn;
+        if (expireIn === undefined) return true;
+
+        const threshold = 60; // seconds
+
+        return expireIn <= threshold;
+      },
       refreshUserToken: async () => {
         const refreshToken = get().refresh_token;
 

@@ -1,0 +1,98 @@
+import { type FormEvent } from "react";
+import { Bell, KanbanSquare } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useLogout } from "@/hooks/auth-hooks";
+import { useNavigate } from "react-router-dom";
+
+const DashboardHeader = () => {
+  const navigate = useNavigate();
+  const { mutate, isPending } = useLogout();
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  };
+
+  const handleLogout = () => {
+    mutate(undefined, {
+      onSuccess: () => {
+        navigate("/auth/sign-in");
+      },
+    });
+  };
+
+  return (
+    <header className="grid gap-4 bg-card p-4 shadow-sm md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6">
+      <div className="flex items-center gap-3">
+        <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <KanbanSquare className="size-4" />
+        </span>
+        <span className="text-md font-semibold tracking-tight">FlowBoard</span>
+      </div>
+
+      <div className="w-full flex items-center justify-center">
+        <form
+          onSubmit={handleSearch}
+          className="flex w-full min-w-0 items-center gap-2 md:max-w-xl"
+        >
+          <Input
+            type="search"
+            placeholder="Search boards, cards, or people"
+            className="flex-1"
+          />
+          <Button type="submit" className="shrink-0">
+            Search
+          </Button>
+        </form>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground"
+        >
+          <Bell className="size-5" />
+          <span className="sr-only">Open notifications</span>
+        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-lg"
+              className="rounded-full p-0"
+              aria-label="Open user menu"
+            >
+              <Avatar className="size-10">
+                <AvatarImage src="" alt="User avatar" />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Dark Mode</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+              {isPending ? "Logging out..." : "Logout"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+};
+
+export default DashboardHeader;
