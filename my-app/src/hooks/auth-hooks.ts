@@ -2,7 +2,7 @@ import apiClient from "@/query/api-client";
 import ENDPOINTS from "@/routes/endpoints";
 import useAuthStore from "@/store/auth-store";
 import type { AccessTokenPayload } from "@/types/auth";
-import type { AuthResponse } from "@/types/user";
+import type { AuthResponse } from "@/types/auth";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { jwtDecode } from "jwt-decode";

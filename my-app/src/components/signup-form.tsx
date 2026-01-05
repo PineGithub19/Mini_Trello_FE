@@ -68,8 +68,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const { mutate, isPending } = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
-    console.log("Register form data:", data);
-
     mutate(
       {
         name: data.username,

@@ -7,9 +7,12 @@ export type ApiResponse<T> = {
 
 export type PaginatedResponse<T> = {
   items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 };
 
 export type ErrorResponse = {
