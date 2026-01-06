@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFetchDefaultBackgroundList } from "@/hooks/file-hooks";
 import { cn } from "@/lib/utils";
-import { useCreateWorkspaces } from "@/hooks/worksapce-hooks";
+import { useCreateWorkspaces } from "@/hooks/workspace-hooks";
 import { toastError, toastSuccess } from "../custom-ui/toast-ui";
 import { useState } from "react";
 

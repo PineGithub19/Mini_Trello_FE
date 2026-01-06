@@ -5,7 +5,10 @@ import WorkspaceCardCreate from "../workspace/workspace-card-create";
 import { useFetchProjectsInCurrentWorkspace } from "@/hooks/project-hooks";
 import { useState } from "react";
 import PaginationUI from "../custom-ui/pagination-ui";
-import { FolderClosed, FileSpreadsheet } from "lucide-react";
+import { FolderClosed, FileSpreadsheet, Users } from "lucide-react";
+import WorkspaceMemeberCardCreate from "../workspace/workspace-member-card-create";
+import { useFetchMembersInWorkspace } from "@/hooks/workspace-member-hooks";
+import WorkspaceMemberCard from "../workspace/workspace-member-card";
 
 const DashboardContent = () => {
   const [page, setPage] = useState(1);
@@ -21,6 +24,9 @@ const DashboardContent = () => {
     currentWorkspaceId || "",
     page
   );
+  const { data: members } = useFetchMembersInWorkspace(
+    currentWorkspaceId || ""
+  );
 
   if (currentWorkspaceId) {
     return (
@@ -32,12 +38,28 @@ const DashboardContent = () => {
           <p className="text-lg font-semibold">{currentWorkspaceName}</p>
         </div>
         <p className="text-md mb-4">
-          Create your own projects to stay organized and productive.
+          Create your own projects and add new memembers to your workspace to
+          stay organized and productive.
         </p>
         <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
           <ProjectCardCreate />
+          <WorkspaceMemeberCardCreate />
         </div>
-
+        <div className="flex items-center gap-4 mt-16 mb-6">
+          <span className="p-2 bg-primary/10 text-primary rounded-md">
+            <Users className="size-4" />
+          </span>
+          <p className="text-lg font-semibold">Members in workspace</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
+          {members?.data.map((member, index) => (
+            <WorkspaceMemberCard
+              key={index}
+              workspaceMemberRole={member.role}
+              member={member.userInformation}
+            />
+          ))}
+        </div>
         <div className="flex items-center gap-4 mt-16 mb-6">
           <span className="p-2 bg-primary/10 text-primary rounded-md">
             <FileSpreadsheet className="size-4" />

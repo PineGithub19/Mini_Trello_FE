@@ -45,3 +45,24 @@ export const useFetchWorkspaces = (page: number = 1, limit: number = 10) => {
     },
   });
 };
+
+export const useFetchColaboratedWorkspaces = (
+  page: number = 1,
+  limit: number = 10
+) => {
+  return useQuery<WorkspacesListResponse, AxiosError<ErrorResponse>>({
+    queryKey: ["colaborated-workspaces", page],
+    queryFn: async () => {
+      const response = await apiClient.get<WorkspacesListResponse>(
+        ENDPOINTS.COLABORATED_WORKSPACE_LIST,
+        {
+          params: {
+            page,
+            limit,
+          },
+        }
+      );
+      return response.data;
+    },
+  });
+};

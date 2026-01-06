@@ -3,7 +3,10 @@ import { LayoutDashboard } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
-import { useFetchWorkspaces } from "@/hooks/worksapce-hooks";
+import {
+  useFetchColaboratedWorkspaces,
+  useFetchWorkspaces,
+} from "@/hooks/workspace-hooks";
 import { Button } from "../ui/button";
 import useWorkspaceStore from "@/store/workspace-store";
 
@@ -14,6 +17,7 @@ const sidebarItems = [
 const DashboardSidebar = () => {
   const [page, setPage] = useState(1);
   const { data: workspaces } = useFetchWorkspaces(page);
+  const { data: colaboratedWorkspaces } = useFetchColaboratedWorkspaces(page);
 
   const [activeItem, setActiveItem] = useState("dashboard");
   const setCurrentWorkspace = useWorkspaceStore(
@@ -21,6 +25,9 @@ const DashboardSidebar = () => {
   );
   const setCurrentWorkspaceName = useWorkspaceStore(
     (state) => state.setCurrentWorkspaceName
+  );
+  const setCurrentWorkspaceOwnerId = useWorkspaceStore(
+    (state) => state.setCurrentWorkspaceOwnerId
   );
   const clearCurrentWorkspace = useWorkspaceStore(
     (state) => state.clearCurrentWorkspace
@@ -33,6 +40,7 @@ const DashboardSidebar = () => {
       const workspace = workspaces?.data.items.find((ws) => ws.id === item);
       if (workspace) {
         setCurrentWorkspaceName(workspace.name);
+        setCurrentWorkspaceOwnerId(workspace.ownerId);
       }
     } else {
       clearCurrentWorkspace();
@@ -112,6 +120,40 @@ const DashboardSidebar = () => {
               Load More
             </Button>
           )}
+        <Separator className="my-4" />
+        <p className="text-muted-foreground text-sm px-4 mb-4">
+          Colaborated Workspaces
+        </p>
+        <ul className="flex flex-col gap-2 mb-8">
+          {colaboratedWorkspaces?.data.items.map((workspace) => {
+            const isActive = workspace.id === activeItem;
+
+            return (
+              <li key={workspace.id}>
+                <button
+                  type="button"
+                  onClick={() => handleSetActiveItem(workspace.id, true)}
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                    isActive
+                      ? "bg-highlight text-highlight-text"
+                      : "text-muted-foreground hover:bg-muted"
+                  )}
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="size-6 flex items-center justify-center rounded-sm bg-primary/10 text-primary">
+                      {workspace.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span>{workspace.name}</span>
+                  </span>
+                  {workspace.id === activeItem && (
+                    <span className="size-2 rounded-full bg-highlight-text" />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
     </aside>
   );
