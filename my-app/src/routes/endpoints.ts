@@ -18,6 +18,18 @@ const ENDPOINTS = {
 
   PROJECTS_CREATE: "/projects",
   PROJECTS_LIST: "/projects",
+  PROJECT_DETAIL: "/projects/:projectId",
+
+  TASKS_CREATE: "/tasks",
+  TASKS_LIST: "/tasks",
+  TASK_DETAIL: "/tasks/:taskId",
+  TASKS_UPDATE: "/tasks/:taskId",
+
+  LISTS_CREATE: "/lists",
+  LISTS: "/lists",
+  LIST_DETAIL: "/lists/:listId",
+  LISTS_UPDATE: "/lists/:listId",
+  LISTS_DELETE: "/lists/:listId",
 
   UPLOAD_IMAGE: "/supabase/upload",
   DEFAULT_IMAGES: "/supabase/defaults",

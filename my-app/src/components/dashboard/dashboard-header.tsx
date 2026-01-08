@@ -32,9 +32,16 @@ const DashboardHeader = () => {
     });
   };
 
+  const handleGoToDashboard = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <header className="grid gap-4 bg-card p-4 shadow-sm md:grid-cols-[auto_1fr_auto] md:items-center md:gap-6">
-      <div className="flex items-center gap-3">
+      <div
+        className="flex items-center gap-3 hover:cursor-pointer"
+        onClick={handleGoToDashboard}
+      >
         <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <KanbanSquare className="size-4" />
         </span>

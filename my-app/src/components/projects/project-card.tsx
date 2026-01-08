@@ -1,9 +1,27 @@
 import { IMAGES } from "@/lib/images";
 import type { Project } from "@/types/project";
+import { useNavigate } from "react-router-dom";
 
-const ProjectCard = ({ project }: { project: Project }) => {
+const ProjectCard = ({
+  workspaceId,
+  project,
+}: {
+  workspaceId: string;
+  project: Project;
+}) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/project/${project.id}`, {
+      state: { workspaceId },
+    });
+  };
+
   return (
-    <div className="w-full rounded-lg overflow-hidden shadow-md hover:cursor-pointer">
+    <div
+      className="w-full rounded-lg overflow-hidden shadow-md hover:cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="relative">
         <img
           className="object-cover w-full h-32"

@@ -56,3 +56,16 @@ export const useFetchProjectsInCurrentWorkspace = (
     enabled: !!workspaceId,
   });
 };
+
+export const useFetchProjectById = (projectId: string) => {
+  return useQuery<ProjectResponse, AxiosError<ErrorResponse>>({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const response = await apiClient.get<ProjectResponse>(
+        ENDPOINTS.PROJECT_DETAIL.replace(":projectId", projectId)
+      );
+      return response.data;
+    },
+    enabled: !!projectId,
+  });
+};

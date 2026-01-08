@@ -2,6 +2,8 @@
 @import "tw-animate-css";
 @import "tw-animate-css";
 
+@tailwind utilities;
+
 @custom-variant dark (&:is(.dark *));
 
 body {
@@ -311,6 +313,18 @@ body {
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge, and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }
 
 @layer base {

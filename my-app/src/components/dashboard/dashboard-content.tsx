@@ -86,7 +86,11 @@ const DashboardContent = () => {
         </div>
         <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
           {projects?.data.items.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              workspaceId={workspaceIdentifier}
+              project={project}
+            />
           ))}
         </div>
         <div className="mt-12">

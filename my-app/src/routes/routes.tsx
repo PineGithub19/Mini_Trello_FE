@@ -13,6 +13,7 @@ const SignUpPage = lazy(() => import("../components/auth/sign-up-page"));
 const DashboardPage = lazy(
   () => import("../components/dashboard/dashboard-page")
 );
+const ProjectPage = lazy(() => import("../components/projects/project-page"));
 
 const router = createBrowserRouter([
   {
@@ -53,6 +54,22 @@ const router = createBrowserRouter([
       {
         path: "dashboard/workspaces/:workspaceId",
         element: <DashboardPage />,
+      },
+    ],
+    loader: ProtectedRoute,
+  },
+  {
+    path: "/project",
+    errorElement: <ErrorPage />,
+    element: (
+      <Suspense fallback={<LoadingPage />}>
+        <CommonLayout />
+      </Suspense>
+    ),
+    children: [
+      {
+        path: ":projectId",
+        element: <ProjectPage />,
       },
     ],
     loader: ProtectedRoute,
