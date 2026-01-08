@@ -33,7 +33,11 @@ const useWorkspaceStore = create<WorkspaceStore>((set) => ({
   },
 
   clearCurrentWorkspace: () => {
-    set({ currentWorkspaceId: null });
+    set({
+      currentWorkspaceId: null,
+      currentWorkspaceName: undefined,
+      currentWorkspaceOwnerId: undefined,
+    });
   },
 }));
 

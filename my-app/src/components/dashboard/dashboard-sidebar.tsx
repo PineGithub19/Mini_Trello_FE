@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LayoutDashboard } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
@@ -19,7 +20,9 @@ const DashboardSidebar = () => {
   const { data: workspaces } = useFetchWorkspaces(page);
   const { data: colaboratedWorkspaces } = useFetchColaboratedWorkspaces(page);
 
-  const [activeItem, setActiveItem] = useState("dashboard");
+  const navigate = useNavigate();
+  const { workspaceId } = useParams<{ workspaceId?: string }>();
+  const activeItem = workspaceId ?? "dashboard";
   const setCurrentWorkspace = useWorkspaceStore(
     (state) => state.setCurrentWorkspace
   );
@@ -32,20 +35,58 @@ const DashboardSidebar = () => {
   const clearCurrentWorkspace = useWorkspaceStore(
     (state) => state.clearCurrentWorkspace
   );
+  const currentWorkspaceId = useWorkspaceStore(
+    (state) => state.currentWorkspaceId
+  );
+  const currentWorkspaceName = useWorkspaceStore(
+    (state) => state.currentWorkspaceName
+  );
+  const currentWorkspaceOwnerId = useWorkspaceStore(
+    (state) => state.currentWorkspaceOwnerId
+  );
 
-  const handleSetActiveItem = (item: string, isWorkspace: boolean) => {
-    setActiveItem(item);
-    if (isWorkspace) {
-      setCurrentWorkspace(item);
-      const workspace = workspaces?.data.items.find((ws) => ws.id === item);
-      if (workspace) {
-        setCurrentWorkspaceName(workspace.name);
-        setCurrentWorkspaceOwnerId(workspace.ownerId);
+  const availableWorkspaces = useMemo(() => {
+    return [
+      ...(workspaces?.data.items ?? []),
+      ...(colaboratedWorkspaces?.data.items ?? []),
+    ];
+  }, [workspaces?.data.items, colaboratedWorkspaces?.data.items]);
+
+  useEffect(() => {
+    if (!workspaceId) {
+      if (currentWorkspaceId) {
+        clearCurrentWorkspace();
       }
-    } else {
-      clearCurrentWorkspace();
+      return;
     }
-  };
+
+    if (currentWorkspaceId !== workspaceId) {
+      setCurrentWorkspace(workspaceId);
+    }
+
+    const matchedWorkspace = availableWorkspaces.find(
+      (workspace) => workspace.id === workspaceId
+    );
+
+    if (matchedWorkspace) {
+      if (currentWorkspaceName !== matchedWorkspace.name) {
+        setCurrentWorkspaceName(matchedWorkspace.name);
+      }
+      if (currentWorkspaceOwnerId !== matchedWorkspace.ownerId) {
+        setCurrentWorkspaceOwnerId(matchedWorkspace.ownerId);
+      }
+    }
+  }, [
+    workspaceId,
+    currentWorkspaceId,
+    currentWorkspaceName,
+    currentWorkspaceOwnerId,
+    availableWorkspaces,
+    setCurrentWorkspace,
+    setCurrentWorkspaceName,
+    setCurrentWorkspaceOwnerId,
+    clearCurrentWorkspace,
+  ]);
 
   return (
     <aside className="bg-card px-4">
@@ -58,7 +99,10 @@ const DashboardSidebar = () => {
               <li key={value}>
                 <button
                   type="button"
-                  onClick={() => handleSetActiveItem(value, false)}
+                  onClick={() => {
+                    clearCurrentWorkspace();
+                    navigate("/dashboard");
+                  }}
                   className={cn(
                     "flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                     isActive
@@ -88,7 +132,14 @@ const DashboardSidebar = () => {
               <li key={workspace.id}>
                 <button
                   type="button"
-                  onClick={() => handleSetActiveItem(workspace.id, true)}
+                  onClick={() => {
+                    if (workspace.id !== currentWorkspaceId) {
+                      setCurrentWorkspace(workspace.id);
+                      setCurrentWorkspaceName(workspace.name);
+                      setCurrentWorkspaceOwnerId(workspace.ownerId);
+                    }
+                    navigate(`/dashboard/workspaces/${workspace.id}`);
+                  }}
                   className={cn(
                     "flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                     isActive
@@ -132,7 +183,14 @@ const DashboardSidebar = () => {
               <li key={workspace.id}>
                 <button
                   type="button"
-                  onClick={() => handleSetActiveItem(workspace.id, true)}
+                  onClick={() => {
+                    if (workspace.id !== currentWorkspaceId) {
+                      setCurrentWorkspace(workspace.id);
+                      setCurrentWorkspaceName(workspace.name);
+                      setCurrentWorkspaceOwnerId(workspace.ownerId);
+                    }
+                    navigate(`/dashboard/workspaces/${workspace.id}`);
+                  }}
                   className={cn(
                     "flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                     isActive

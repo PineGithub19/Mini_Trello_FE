@@ -3,7 +3,8 @@ import ProjectCard from "../projects/project-card";
 import ProjectCardCreate from "../projects/project-card-create";
 import WorkspaceCardCreate from "../workspace/workspace-card-create";
 import { useFetchProjectsInCurrentWorkspace } from "@/hooks/project-hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import PaginationUI from "../custom-ui/pagination-ui";
 import { FolderClosed, FileSpreadsheet, Users } from "lucide-react";
 import WorkspaceMemeberCardCreate from "../workspace/workspace-member-card-create";
@@ -12,6 +13,7 @@ import WorkspaceMemberCard from "../workspace/workspace-member-card";
 
 const DashboardContent = () => {
   const [page, setPage] = useState(1);
+  const { workspaceId } = useParams<{ workspaceId?: string }>();
 
   const currentWorkspaceId = useWorkspaceStore(
     (state) => state.currentWorkspaceId
@@ -19,23 +21,39 @@ const DashboardContent = () => {
   const currentWorkspaceName = useWorkspaceStore(
     (state) => state.currentWorkspaceName
   );
+  const setCurrentWorkspace = useWorkspaceStore(
+    (state) => state.setCurrentWorkspace
+  );
+  const clearCurrentWorkspace = useWorkspaceStore(
+    (state) => state.clearCurrentWorkspace
+  );
+
+  const workspaceIdentifier = workspaceId ?? currentWorkspaceId ?? "";
+
+  useEffect(() => {
+    if (workspaceId) {
+      setCurrentWorkspace(workspaceId);
+    } else {
+      clearCurrentWorkspace();
+    }
+  }, [workspaceId, setCurrentWorkspace, clearCurrentWorkspace]);
 
   const { data: projects } = useFetchProjectsInCurrentWorkspace(
-    currentWorkspaceId || "",
+    workspaceIdentifier,
     page
   );
-  const { data: members } = useFetchMembersInWorkspace(
-    currentWorkspaceId || ""
-  );
+  const { data: members } = useFetchMembersInWorkspace(workspaceIdentifier);
 
-  if (currentWorkspaceId) {
+  if (workspaceIdentifier) {
     return (
       <div className="px-8 lg:px-32">
         <div className="flex items-center gap-4 mb-4">
           <span className="p-2 bg-primary/10 text-primary rounded-md">
             <FolderClosed className="size-4" />
           </span>
-          <p className="text-lg font-semibold">{currentWorkspaceName}</p>
+          <p className="text-lg font-semibold">
+            {currentWorkspaceName || "Workspace"}
+          </p>
         </div>
         <p className="text-md mb-4">
           Create your own projects and add new memembers to your workspace to
