@@ -12,6 +12,7 @@ import { useLogout } from "@/hooks/auth-hooks";
 import { useNavigate } from "react-router-dom";
 import { useFetchUserProfile } from "@/hooks/user-hooks";
 import DashboardSearch from "./dashboard-search";
+import { extractInitial } from "@/lib/utils";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -28,6 +29,10 @@ const DashboardHeader = () => {
 
   const handleGoToDashboard = () => {
     navigate("/dashboard");
+  };
+
+  const handleGoToProfile = () => {
+    navigate("/profile");
   };
 
   return (
@@ -67,8 +72,13 @@ const DashboardHeader = () => {
               aria-label="Open user menu"
             >
               <Avatar className="size-10">
-                <AvatarImage src="" alt="User avatar" />
-                <AvatarFallback>{data?.data.name.charAt(0)}</AvatarFallback>
+                <AvatarImage
+                  src={data?.data.avatar || undefined}
+                  alt="User avatar"
+                />
+                <AvatarFallback>
+                  {extractInitial(data?.data.name)}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -76,7 +86,9 @@ const DashboardHeader = () => {
             <p className="text-muted-foreground text-sm px-2 py-2">
               {data?.data.name} | {data?.data.email}
             </p>
-            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleGoToProfile}>
+              Profile
+            </DropdownMenuItem>
             <DropdownMenuItem>Dark Mode</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={handleLogout}>

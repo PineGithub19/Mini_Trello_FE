@@ -6,3 +6,8 @@ export type BackgroundListResponse = ApiResponse<
     url: string;
   }[]
 >;
+
+export type UploadedImageResponse = ApiResponse<{
+  url: string;
+  path: string;
+}>;

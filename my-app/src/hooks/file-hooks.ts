@@ -1,19 +1,22 @@
 import apiClient from "@/query/api-client";
 import ENDPOINTS from "@/routes/endpoints";
-import type { BackgroundListResponse } from "@/types/file";
+import type {
+  BackgroundListResponse,
+  UploadedImageResponse,
+} from "@/types/file";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "react-router-dom";
 
 export const useUploadImage = () => {
   return useMutation<
-    { url: string; path: string },
+    UploadedImageResponse,
     AxiosError<ErrorResponse>,
     FormData
   >({
     mutationKey: ["upload-image"],
     mutationFn: async (formData) => {
-      const response = await apiClient.post<{ url: string; path: string }>(
+      const response = await apiClient.post<UploadedImageResponse>(
         ENDPOINTS.UPLOAD_IMAGE,
         formData,
         {

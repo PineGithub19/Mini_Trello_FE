@@ -14,6 +14,7 @@ const DashboardPage = lazy(
   () => import("../components/dashboard/dashboard-page")
 );
 const ProjectPage = lazy(() => import("../components/projects/project-page"));
+const ProfilePage = lazy(() => import("../components/profile/profile-page"));
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,22 @@ const router = createBrowserRouter([
       {
         path: ":projectId",
         element: <ProjectPage />,
+      },
+    ],
+    loader: ProtectedRoute,
+  },
+  {
+    path: "/profile",
+    errorElement: <ErrorPage />,
+    element: (
+      <Suspense fallback={<LoadingPage />}>
+        <CommonLayout />
+      </Suspense>
+    ),
+    children: [
+      {
+        index: true,
+        element: <ProfilePage />,
       },
     ],
     loader: ProtectedRoute,
