@@ -19,6 +19,7 @@ interface AuthActions {
   ) => void;
   logout: () => void;
   isTokenExpired: () => boolean;
+  getAccountId: () => string | null;
   refreshUserToken: () => Promise<void>;
 }
 
@@ -39,6 +40,18 @@ const useAuthStore = create<AuthStore>()(
         const threshold = 60; // seconds
 
         return expireIn <= threshold;
+      },
+      getAccountId: () => {
+        const token = get().token;
+        if (!token) return null;
+
+        try {
+          const decoded = jwtDecode<AccessTokenPayload>(token);
+          return decoded.sub;
+        } catch (error) {
+          console.error("Error decoding token:", error);
+          return null;
+        }
       },
       refreshUserToken: async () => {
         const refreshToken = get().refresh_token;

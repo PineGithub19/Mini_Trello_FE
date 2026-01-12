@@ -1,8 +1,5 @@
-import { type FormEvent } from "react";
 import { Bell, KanbanSquare } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -14,15 +11,12 @@ import {
 import { useLogout } from "@/hooks/auth-hooks";
 import { useNavigate } from "react-router-dom";
 import { useFetchUserProfile } from "@/hooks/user-hooks";
+import DashboardSearch from "./dashboard-search";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
   const { mutate, isPending } = useLogout();
   const { data } = useFetchUserProfile();
-
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  };
 
   const handleLogout = () => {
     mutate(undefined, {
@@ -49,19 +43,7 @@ const DashboardHeader = () => {
       </div>
 
       <div className="w-full flex items-center justify-center">
-        <form
-          onSubmit={handleSearch}
-          className="flex w-full min-w-0 items-center gap-2 md:max-w-xl"
-        >
-          <Input
-            type="search"
-            placeholder="Search boards, cards, or people"
-            className="flex-1"
-          />
-          <Button type="submit" className="shrink-0">
-            Search
-          </Button>
-        </form>
+        <DashboardSearch />
       </div>
 
       <div className="flex items-center gap-2">

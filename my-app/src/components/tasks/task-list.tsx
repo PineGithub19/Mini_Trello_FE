@@ -17,6 +17,7 @@ const TaskList = () => {
             key={taskList.id}
             listTitle={taskList.title}
             listId={taskList.id}
+            projectId={currentProjectId || ""}
           />
         ))}
         <div className="w-64 bg-muted rounded-md p-2">

@@ -1,5 +1,5 @@
 export type AccessTokenPayload = {
-  sub: number;
+  sub: string;
   exp: number;
   roles: string[];
 };

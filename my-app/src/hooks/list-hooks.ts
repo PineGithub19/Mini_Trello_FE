@@ -66,3 +66,23 @@ export const useUpdateTaskList = () => {
     },
   });
 };
+
+export const useDeleteTaskList = () => {
+  return useMutation<
+    void,
+    AxiosError<ErrorResponse>,
+    { listId: string; projectId: string }
+  >({
+    mutationKey: ["delete-task-list"],
+    mutationFn: async ({ listId }) => {
+      await apiClient.delete<void>(
+        ENDPOINTS.LISTS_DELETE.replace(":listId", listId)
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task-lists-in-project", variables.projectId],
+      });
+    },
+  });
+};

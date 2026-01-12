@@ -38,6 +38,8 @@ const ENDPOINTS = {
 
   UPLOAD_IMAGE: "/supabase/upload",
   DEFAULT_IMAGES: "/supabase/defaults",
+
+  SEARCH: "/search",
 };
 
 export default ENDPOINTS;
