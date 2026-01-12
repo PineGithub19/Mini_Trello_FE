@@ -1,7 +1,13 @@
 import { queryClient } from "@/lib/utils";
 import apiClient from "@/query/api-client";
 import ENDPOINTS from "@/routes/endpoints";
-import type { TaskPayload, TaskResponse, TaskListResponse } from "@/types/task";
+import type {
+  TaskPayload,
+  TaskResponse,
+  TaskListResponse,
+  TaskCommentPayload,
+  TaskCommentResponse,
+} from "@/types/task";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "react-router-dom";
@@ -60,6 +66,63 @@ export const useUpdateTask = (taskId: string) => {
         taskPayload
       );
       return response.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks-in-list", variables.listId],
+      });
+    },
+  });
+};
+
+export const useDeleteTask = (taskId: string) => {
+  return useMutation<void, AxiosError<ErrorResponse>, { listId: string }>({
+    mutationKey: ["delete-task", taskId],
+    mutationFn: async () => {
+      await apiClient.delete<void>(
+        ENDPOINTS.TASKS_DELETE.replace(":taskId", taskId)
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks-in-list", variables.listId],
+      });
+    },
+  });
+};
+
+export const useFetchTaskComments = (taskId: string) => {
+  return useQuery<TaskCommentResponse, AxiosError<ErrorResponse>>({
+    queryKey: ["task-comments", taskId],
+    queryFn: async () => {
+      const response = await apiClient.get<TaskCommentResponse>(
+        ENDPOINTS.TASK_COMMENT_LIST.replace(":id", taskId),
+        { params: { taskId } }
+      );
+      return response.data;
+    },
+    enabled: !!taskId,
+  });
+};
+
+export const useCreateTaskComment = () => {
+  return useMutation<
+    TaskCommentResponse,
+    AxiosError<ErrorResponse>,
+    TaskCommentPayload
+  >({
+    mutationKey: ["create-task-comment"],
+    mutationFn: async (taskCommentPayload: TaskCommentPayload) => {
+      const response = await apiClient.post<TaskCommentResponse>(
+        ENDPOINTS.TASK_COMMENT_CREATE,
+        taskCommentPayload
+      );
+      return response.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task-comments", variables.taskId],
+      });
     },
   });
 };

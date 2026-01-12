@@ -14,3 +14,16 @@ export const useFetchUserProfile = () => {
     },
   });
 };
+
+export const useFetchUserById = (userId: string) => {
+  return useQuery<UserResponse>({
+    queryKey: ["user-by-id", userId],
+    queryFn: async () => {
+      const response = await apiClient.get<UserResponse>(
+        ENDPOINTS.USER_DETAIL.replace(":userId", userId)
+      );
+      return response.data;
+    },
+    enabled: !!userId,
+  });
+};

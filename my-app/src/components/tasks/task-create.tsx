@@ -7,6 +7,8 @@ import { Input } from "../ui/input";
 import { useCreateTask, useFetchTasksInList } from "@/hooks/task-hooks";
 import { toastError, toastSuccess } from "../custom-ui/toast-ui";
 import { Plus } from "lucide-react";
+import TaskItem from "./task-item";
+import { useTaskStore } from "@/store/task-store";
 
 const taskCreateSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -17,6 +19,8 @@ type TaskCreateFormData = z.infer<typeof taskCreateSchema>;
 const TaskCreate = ({ listId }: { listId: string }) => {
   const currentListId = listId;
   const { data: tasks } = useFetchTasksInList(currentListId || "");
+
+  const setTaskId = useTaskStore((state) => state.setTaskId);
 
   const [isCreateMode, setIsCreateMode] = useState(false);
 
@@ -51,57 +55,52 @@ const TaskCreate = ({ listId }: { listId: string }) => {
     });
   };
 
-  if (!isCreateMode) {
-    return (
-      <div
-        tabIndex={-1}
-        onFocus={() => setIsCreateMode(true)}
-        onBlur={(e) => {
-          // only close if focus left this entire container
-          if (!e.currentTarget.contains(e.relatedTarget)) {
-            setIsCreateMode(false);
-          }
-        }}
-      >
-        <ul>
-          {tasks?.data.map((task) => (
-            <li
-              key={task.id}
-              className="mb-2 p-2 bg-background rounded-md hover:cursor-pointer border border-transparent hover:border-primary"
-            >
-              {task.title}
-            </li>
-          ))}
-        </ul>
+  const handleTaskItemClick = (taskId: string) => {
+    setTaskId(taskId);
+  };
 
-        <div className="flex items-center justify-center gap-2 rounded-md py-1 hover:bg-muted-foreground/10 hover:cursor-pointer">
+  return (
+    <div>
+      <ul>
+        {tasks?.data.map((task) => (
+          <div onClick={() => handleTaskItemClick(task.id)} key={task.id}>
+            <TaskItem task={task} />
+          </div>
+        ))}
+      </ul>
+      {!isCreateMode && (
+        <div
+          className="flex items-center justify-center gap-2 rounded-md py-1 hover:bg-muted-foreground/10 hover:cursor-pointer"
+          onClick={() => setIsCreateMode(true)}
+        >
           <Plus size="16" />
           New Task
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Input {...register("title")} />
-      {errors.title && (
-        <p className="text-sm text-destructive mt-1">{errors.title.message}</p>
       )}
-      <div className="mt-2">
-        <Button size="sm" type="submit">
-          Create Task
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          className="ml-2 bg-muted hover:bg-foreground/10"
-          onClick={() => setIsCreateMode(false)}
-        >
-          Cancel
-        </Button>
-      </div>
-    </form>
+      {isCreateMode && (
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Input {...register("title")} />
+          {errors.title && (
+            <p className="text-sm text-destructive mt-1">
+              {errors.title.message}
+            </p>
+          )}
+          <div className="mt-2">
+            <Button size="sm" type="submit">
+              Create Task
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="ml-2 bg-muted hover:bg-foreground/10"
+              onClick={() => setIsCreateMode(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 };
 

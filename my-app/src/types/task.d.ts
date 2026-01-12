@@ -1,5 +1,6 @@
 import { TaskStatus, TaskPriority } from "@/enums/tasks.enum";
 import type { ApiResponse } from "./response";
+import type { UserResponse } from "./user";
 
 export type Task = {
   id: string;
@@ -12,6 +13,7 @@ export type Task = {
   updatedAt: string;
   listId: string;
   createdById: string;
+  assignedToId: string;
 };
 
 export type TaskPayload = {
@@ -27,3 +29,23 @@ export type TaskPayload = {
 
 export type TaskResponse = ApiResponse<Task>;
 export type TaskListResponse = ApiResponse<Task[]>;
+
+export type TaskCommentPayload = {
+  content: string;
+  taskId: string;
+};
+
+export type TaskComment = {
+  id: string;
+  content: string;
+  taskId: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TaskCommentResponse = ApiResponse<
+  (TaskComment & {
+    userInformation: UserResponse["data"];
+  })[]
+>;

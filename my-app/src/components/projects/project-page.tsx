@@ -20,6 +20,7 @@ import { Ellipsis } from "lucide-react";
 import { Button } from "../ui/button";
 import { IMAGES } from "@/lib/images";
 import TaskList from "../tasks/task-list";
+import { extractInitial } from "@/lib/utils";
 
 const ProjectPage = () => {
   const { projectId } = useParams<{ projectId?: string }>();
@@ -79,12 +80,10 @@ const ProjectPage = () => {
                       <TooltipTrigger>
                         <Avatar className="size-8 ring-2 ring-background">
                           <AvatarImage
-                            src={
-                              member.userInformation.avatar || IMAGES.FALLBACK
-                            }
+                            src={member.userInformation.avatar || undefined}
                           />
                           <AvatarFallback>
-                            {member.userInformation.name}
+                            {extractInitial(member.userInformation.name)}
                           </AvatarFallback>
                         </Avatar>
                       </TooltipTrigger>

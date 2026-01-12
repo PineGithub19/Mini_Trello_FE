@@ -5,6 +5,7 @@ const ENDPOINTS = {
   LOGOUT: "/auth/logout",
 
   USER_PROFILE: "/users/me",
+  USER_DETAIL: "/users/:userId",
 
   DASHBOARD: "/",
 
@@ -24,6 +25,10 @@ const ENDPOINTS = {
   TASKS_LIST: "/tasks",
   TASK_DETAIL: "/tasks/:taskId",
   TASKS_UPDATE: "/tasks/:taskId",
+  TASKS_DELETE: "/tasks/:taskId",
+
+  TASK_COMMENT_CREATE: "/task-comments",
+  TASK_COMMENT_LIST: "/task-comments/all/:id",
 
   LISTS_CREATE: "/lists",
   LISTS: "/lists",

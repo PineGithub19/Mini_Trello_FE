@@ -44,3 +44,25 @@ export const useFetchTaskListsInProject = (projectId: string) => {
     enabled: !!projectId,
   });
 };
+
+export const useUpdateTaskList = () => {
+  return useMutation<
+    TaskListResponse,
+    AxiosError<ErrorResponse>,
+    { listId: string; payload: Partial<TaskListPayload> }
+  >({
+    mutationKey: ["update-task-list"],
+    mutationFn: async ({ listId, payload }) => {
+      const response = await apiClient.patch<TaskListResponse>(
+        ENDPOINTS.LIST_DETAIL.replace(":listId", listId),
+        payload
+      );
+      return response.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["task-lists-in-project", variables.payload.projectId],
+      });
+    },
+  });
+};
