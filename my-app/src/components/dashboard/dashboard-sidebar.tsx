@@ -89,7 +89,7 @@ const DashboardSidebar = () => {
   ]);
 
   return (
-    <aside className="bg-card px-4">
+    <aside className="bg-background px-4">
       <nav aria-label="Dashboard navigation">
         <ul className="flex flex-col gap-2">
           {sidebarItems.map(({ label, value, icon: Icon }) => {

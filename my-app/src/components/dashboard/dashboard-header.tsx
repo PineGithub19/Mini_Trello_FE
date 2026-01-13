@@ -13,9 +13,12 @@ import { useNavigate } from "react-router-dom";
 import { useFetchUserProfile } from "@/hooks/user-hooks";
 import DashboardSearch from "./dashboard-search";
 import { extractInitial } from "@/lib/utils";
+import { useTheme } from "../../store/providers/theme-provider";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+
   const { mutate, isPending } = useLogout();
   const { data } = useFetchUserProfile();
 
@@ -33,6 +36,14 @@ const DashboardHeader = () => {
 
   const handleGoToProfile = () => {
     navigate("/profile");
+  };
+
+  const handleToggleTheme = () => {
+    if (theme === "dark") {
+      setTheme("light");
+    } else {
+      setTheme("dark");
+    }
   };
 
   return (
@@ -89,7 +100,9 @@ const DashboardHeader = () => {
             <DropdownMenuItem onClick={handleGoToProfile}>
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>Dark Mode</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleToggleTheme}>
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               {isPending ? "Logging out..." : "Logout"}
