@@ -58,7 +58,7 @@ const TaskListItem = ({
 
   return (
     <>
-      <div className="group relative w-64 bg-muted rounded-md px-4 py-2 pr-8">
+      <div className="group relative w-64 bg-muted rounded-md px-4 py-2">
         <TaskListItemTitle listTitle={listTitle} listId={listId} />
         <TaskCreate listId={listId} />
         <button

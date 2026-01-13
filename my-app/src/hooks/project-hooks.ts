@@ -69,3 +69,30 @@ export const useFetchProjectById = (projectId: string) => {
     enabled: !!projectId,
   });
 };
+
+export const useUpdateProjectById = (projectId: string) => {
+  return useMutation<
+    ProjectResponse,
+    AxiosError<ErrorResponse>,
+    Partial<ProjectCreatePayload>
+  >({
+    mutationKey: ["update-project", projectId],
+    mutationFn: async (payload) => {
+      const response = await apiClient.patch<ProjectResponse>(
+        ENDPOINTS.PROJECTS_UPDATE.replace(":projectId", projectId),
+        payload
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["project", data.data.id],
+        exact: true,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", data.data.workspaceId],
+        exact: false,
+      });
+    },
+  });
+};

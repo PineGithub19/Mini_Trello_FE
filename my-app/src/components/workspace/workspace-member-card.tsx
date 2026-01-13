@@ -19,7 +19,7 @@ const WorkspaceMemberCard = ({
   const accountId = useAuthStore((state) => state.getAccountId());
 
   const isOwner = currentWorkspaceOwnerId === accountId;
-  console.log(currentWorkspaceOwnerId, accountId, isOwner);
+
   return (
     <div className="relative flex items-center gap-4 rounded-lg shadow-sm p-2 border border-border hover:shadow-md">
       <Avatar className="size-10 ring-2 ring-background">

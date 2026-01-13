@@ -21,6 +21,7 @@ import { Button } from "../ui/button";
 import { IMAGES } from "@/lib/images";
 import TaskList from "../tasks/task-list";
 import { extractInitial } from "@/lib/utils";
+import ProjectCardUpdate from "./project-card-update";
 
 const ProjectPage = () => {
   const { projectId } = useParams<{ projectId?: string }>();
@@ -104,7 +105,9 @@ const ProjectPage = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem>Project Details</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <ProjectCardUpdate />
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Member Management</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

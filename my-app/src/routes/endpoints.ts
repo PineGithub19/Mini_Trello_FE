@@ -20,6 +20,7 @@ const ENDPOINTS = {
   PROJECTS_CREATE: "/projects",
   PROJECTS_LIST: "/projects",
   PROJECT_DETAIL: "/projects/:projectId",
+  PROJECTS_UPDATE: "/projects/:projectId",
 
   TASKS_CREATE: "/tasks",
   TASKS_LIST: "/tasks",
