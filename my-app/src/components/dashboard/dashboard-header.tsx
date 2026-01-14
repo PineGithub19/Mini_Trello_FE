@@ -1,4 +1,4 @@
-import { Bell, KanbanSquare } from "lucide-react";
+import { KanbanSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -14,6 +14,7 @@ import { useFetchUserProfile } from "@/hooks/user-hooks";
 import DashboardSearch from "./dashboard-search";
 import { extractInitial } from "@/lib/utils";
 import { useTheme } from "../../store/providers/theme-provider";
+import Notifications from "../notifications/notifications";
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
@@ -62,16 +63,8 @@ const DashboardHeader = () => {
         <DashboardSearch />
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground"
-        >
-          <Bell className="size-5" />
-          <span className="sr-only">Open notifications</span>
-        </Button>
+      <div className="flex items-center gap-4">
+        <Notifications />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -41,6 +41,10 @@ const ENDPOINTS = {
   DEFAULT_IMAGES: "/supabase/defaults",
 
   SEARCH: "/search",
+
+  NOTIFICATION: "/notifications",
+  NOTIFICATION_MARK_AS_READ: "/notifications/mark-as-read",
+  NOTIFICATION_MARK_ALL_AS_READ: "/notifications/mark-all-as-read",
 };
 
 export default ENDPOINTS;
