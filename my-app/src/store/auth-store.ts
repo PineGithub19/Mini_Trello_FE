@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware";
 import type { AccessTokenPayload } from "@/types/auth";
 
 interface AuthState {
+  userId: string | null;
   token: string | null;
   refresh_token: string | null;
   expireIn?: number;
@@ -21,6 +22,7 @@ interface AuthActions {
   isTokenExpired: () => boolean;
   getAccountId: () => string | null;
   refreshUserToken: () => Promise<void>;
+  getUserId: () => string | null;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -28,11 +30,25 @@ type AuthStore = AuthState & AuthActions;
 const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
+      userId: null,
       token: null,
       refresh_token: null,
       setAuth: (token, refresh_token, expireIn) =>
-        set({ token, refresh_token, expireIn }),
-      logout: () => set({ token: null, refresh_token: null }),
+        set(() => {
+          let userId: string | null = null;
+
+          if (token) {
+            try {
+              const decoded = jwtDecode<AccessTokenPayload>(token);
+              userId = decoded.sub ?? null;
+            } catch (error) {
+              console.error("Error decoding token:", error);
+            }
+          }
+
+          return { token, refresh_token, expireIn, userId };
+        }),
+      logout: () => set({ token: null, refresh_token: null, userId: null }),
       isTokenExpired: () => {
         const expireIn = get().expireIn;
         if (expireIn === undefined) return true;
@@ -82,6 +98,18 @@ const useAuthStore = create<AuthStore>()(
         } catch (error) {
           console.error("Error refreshing token:", error);
           get().logout();
+        }
+      },
+      getUserId: () => {
+        const token = get().token;
+        if (!token) return null;
+
+        try {
+          const decoded = jwtDecode<AccessTokenPayload>(token);
+          return decoded.sub;
+        } catch (error) {
+          console.error("Error decoding token:", error);
+          return null;
         }
       },
     }),

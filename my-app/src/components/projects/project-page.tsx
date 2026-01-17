@@ -22,6 +22,7 @@ import { IMAGES } from "@/lib/images";
 import TaskList from "../tasks/task-list";
 import { extractInitial } from "@/lib/utils";
 import ProjectCardUpdate from "./project-card-update";
+import ChatPanel from "../chat/chat";
 
 const ProjectPage = () => {
   const { projectId } = useParams<{ projectId?: string }>();
@@ -74,7 +75,7 @@ const ProjectPage = () => {
                   {projectName}
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6 py-2">
                 <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2">
                   {members?.data.map((member) => (
                     <Tooltip key={member.id}>
@@ -94,12 +95,13 @@ const ProjectPage = () => {
                     </Tooltip>
                   ))}
                 </div>
+                <ChatPanel />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 rounded-full"
+                      className="h-8 w-8 rounded-full"
                     >
                       <Ellipsis className="size-5" />
                     </Button>
