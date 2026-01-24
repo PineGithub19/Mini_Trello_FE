@@ -58,7 +58,7 @@ const ensureTrailingSlash = (value: string) =>
 const buildUrl = (
   endpoint: string,
   baseUrl: string,
-  params?: Record<string, QueryValue>
+  params?: Record<string, QueryValue>,
 ) => {
   const url = endpoint.startsWith("http")
     ? new URL(endpoint)
@@ -75,7 +75,7 @@ const buildUrl = (
 };
 
 const resolveToken = async (
-  provider?: CreateSSEOptions<unknown>["tokenProvider"]
+  provider?: CreateSSEOptions<unknown>["tokenProvider"],
 ) => {
   if (provider) {
     const token = await provider();
@@ -87,7 +87,7 @@ const resolveToken = async (
 
 const serializeBody = (
   body: CreateSSEOptions<unknown>["body"],
-  method?: string
+  method?: string,
 ): { payload: BodyInit | undefined; contentType?: string } => {
   if (!body || method === "GET") {
     return { payload: undefined };
@@ -108,7 +108,7 @@ const serializeBody = (
 };
 
 export const createSSE = <TData>(
-  options: CreateSSEOptions<TData>
+  options: CreateSSEOptions<TData>,
 ): SSEConnection => {
   let controller: AbortController | null = null;
   let active = false;
@@ -179,16 +179,19 @@ export const createSSE = <TData>(
           }
 
           throw new Error(
-            `SSE connection failed with status ${response.status}`
+            `SSE connection failed with status ${response.status}`,
           );
         },
         onmessage: (message) => {
           const data = parser(message);
+
           if (data !== null && data !== undefined) {
             options.onMessage(data, message);
           }
         },
-        onclose: handleClose,
+        onclose: () => {
+          handleClose();
+        },
         onerror: (error) => {
           if (signal.aborted) return;
           options.onError?.(error);
@@ -220,6 +223,7 @@ export const createSSE = <TData>(
       controller.abort();
       currentClose?.();
       currentClose = null;
+      console.log("SSE disconnected successfully");
     }
   };
 

@@ -48,8 +48,15 @@ const ENDPOINTS = {
 
   CHAT_MESSAGES: "/chat-messages",
 
+  // Chat bot
+  AI_CONVERSATIONS: "/ai-conversations",
+  AI_MESSAGES: "/ai-messages",
+  CHAT_BOT: "/chat-bot",
+  CHAT_BOT_CONFIG: "/chat-bot/send",
+
   // SSE
   CHAT_MESSAGES_STREAM: "/events/stream/chat-messages",
+  CHAT_BOT_STREAM: "/chat-bot/stream",
 };
 
 export default ENDPOINTS;

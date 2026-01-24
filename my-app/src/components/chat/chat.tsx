@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -11,33 +12,44 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { MessageCircle } from "lucide-react";
 import { useChatMessages } from "@/hooks/sse-hooks";
-import useProjectStore from "@/store/project-store";
-import type { ChatMessages, ChatMessagesSSE } from "@/types/chat-messages";
 import { useFetchChatMessages } from "@/hooks/chat-messages-hooks";
+import useProjectStore from "@/store/project-store";
 import useAuthStore from "@/store/auth-store";
 import ChatInput from "./chat-input";
-import { useEffect, useRef, useState } from "react";
 import ChatSender from "./sender";
 import ChatReceiver from "./receiver";
+import type { ChatMessages, ChatMessagesSSE } from "@/types/chat-messages";
+import { CHAT_MESSAGES_QUERY_KEY } from "@/constants/chat.constant";
 
 const ChatPanel = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const currentProjectId = useProjectStore((state) => state.currentProjectId);
   const currentUserId = useAuthStore((state) => state.getUserId());
+  const activeChatId = isOpen && currentProjectId ? currentProjectId : null;
 
-  const { message: latestMessage, isConnecting } =
-    useChatMessages<ChatMessagesSSE>(currentProjectId || "");
+  const { message: latestMessage } = useChatMessages<ChatMessagesSSE>(
+    activeChatId,
+    CHAT_MESSAGES_QUERY_KEY,
+    {
+      enabled: Boolean(activeChatId),
+    }
+  );
   const { data: previousMessages, isLoading } = useFetchChatMessages(
-    currentProjectId || ""
+    activeChatId ?? ""
   );
 
-  const [messages, setMessages] = useState<ChatMessages[]>(
-    () => previousMessages?.data ?? []
-  );
+  const [messages, setMessages] = useState<ChatMessages[]>([]);
 
   useEffect(() => {
-    if (!latestMessage?.data) return;
+    if (!isOpen || !previousMessages?.data) return;
+
+    setMessages(previousMessages.data);
+  }, [isOpen, previousMessages?.data]);
+
+  useEffect(() => {
+    if (!isOpen || !latestMessage?.data) return;
 
     setMessages((prev) => {
       if (prev.some((m) => m.id === latestMessage.data.id)) {
@@ -45,7 +57,7 @@ const ChatPanel = () => {
       }
       return [...prev, latestMessage.data];
     });
-  }, [latestMessage]);
+  }, [isOpen, latestMessage]);
 
   // scroll to bottom when new message arrives
 
@@ -63,7 +75,7 @@ const ChatPanel = () => {
   }, [messages.length]);
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={() => setIsOpen(!isOpen)}>
       <SheetTrigger asChild>
         <div className="flex items-center">
           <Tooltip>
@@ -83,12 +95,12 @@ const ChatPanel = () => {
             Chat with your project team members in real-time.
           </SheetDescription>
         </SheetHeader>
-        {(isLoading || isConnecting) && (
+        {isOpen && isLoading && (
           <div className="flex w-full max-w-xs flex-col gap-4 [--radius:1rem] mx-auto">
             <Spinner className="mx-auto mt-10" />
           </div>
         )}
-        {!isLoading && !isConnecting && (
+        {isOpen && !isLoading && (
           <div className="grid flex-1 auto-rows-min gap-6 px-4 py-2 max-h-fit overflow-y-auto">
             {messages.length > 0 &&
               messages.map((msg, index) => (

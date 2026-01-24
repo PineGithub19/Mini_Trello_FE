@@ -1,5 +1,5 @@
 import DashboardHeader from "../dashboard/dashboard-header";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useFetchProjectById } from "@/hooks/project-hooks";
 import { useFetchMembersInWorkspace } from "@/hooks/workspace-member-hooks";
 import useProjectStore from "@/store/project-store";
@@ -23,8 +23,11 @@ import TaskList from "../tasks/task-list";
 import { extractInitial } from "@/lib/utils";
 import ProjectCardUpdate from "./project-card-update";
 import ChatPanel from "../chat/chat";
+import ChatBotPanel from "../chat-bot/chat-bot";
 
 const ProjectPage = () => {
+  const navigate = useNavigate();
+
   const { projectId } = useParams<{ projectId?: string }>();
   const state = useLocation();
   const workspaceId = state?.state?.workspaceId as string | undefined;
@@ -57,6 +60,10 @@ const ProjectPage = () => {
     setCurrentProject,
     clearCurrentProject,
   ]);
+
+  const goToWorkspace = () => {
+    navigate(`/dashboard/workspaces/${workspaceId}`);
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -95,6 +102,7 @@ const ProjectPage = () => {
                     </Tooltip>
                   ))}
                 </div>
+                <ChatBotPanel />
                 <ChatPanel />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -111,6 +119,9 @@ const ProjectPage = () => {
                       <ProjectCardUpdate />
                     </DropdownMenuItem>
                     <DropdownMenuItem>Member Management</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={goToWorkspace}>
+                      Back to workspace
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

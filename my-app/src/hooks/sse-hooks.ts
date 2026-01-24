@@ -1,11 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createSSE, type CreateSSEOptions } from "@/features/sse";
+import {
+  createSSE,
+  type CreateSSEOptions,
+  type SSEConnection,
+} from "@/features/sse";
 import ENDPOINTS from "@/routes/endpoints";
-
-const CHAT_MESSAGES_QUERY_KEY = "chat-messages-sse";
+import type { AiMessages, ChatEvent } from "@/types/chat-bot";
 
 export interface UseChatMessagesOptions<TMessage> {
+  url?: string;
+  body?: Record<string, unknown>;
+  page?: number;
+  limit?: number;
+
   enabled?: boolean;
   parser?: CreateSSEOptions<TMessage>["parser"];
   retryInterval?: number;
@@ -22,7 +30,8 @@ export interface UseChatMessagesResult<TMessage> {
 
 export const useChatMessages = <TMessage = unknown>(
   chatId: string | null | undefined,
-  options: UseChatMessagesOptions<TMessage> = {}
+  chatQueryKey: string,
+  options: UseChatMessagesOptions<TMessage> = {},
 ): UseChatMessagesResult<TMessage> => {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
@@ -32,8 +41,8 @@ export const useChatMessages = <TMessage = unknown>(
   const enabled = Boolean(chatId) && (options.enabled ?? true);
 
   const queryKey = useMemo(
-    () => [CHAT_MESSAGES_QUERY_KEY, chatId ?? ""] as const,
-    [chatId]
+    () => [chatQueryKey, chatId ?? ""] as const,
+    [chatQueryKey, chatId],
   );
 
   const { data: message = null } = useQuery<TMessage | null>({
@@ -53,8 +62,13 @@ export const useChatMessages = <TMessage = unknown>(
     const resolvedChatId = chatId as string;
 
     return createSSE<TMessage>({
-      endpoint: ENDPOINTS.CHAT_MESSAGES_STREAM,
-      params: { chatId: resolvedChatId },
+      endpoint: options.url ?? ENDPOINTS.CHAT_MESSAGES_STREAM,
+      params: {
+        chatId: resolvedChatId,
+        page: options.page,
+        limit: options.limit,
+      },
+      body: options.body,
       retryInterval: options.retryInterval ?? 5000,
       parser: options.parser,
       onConnectStart: () => {
@@ -95,6 +109,10 @@ export const useChatMessages = <TMessage = unknown>(
     enabled,
     options.parser,
     options.retryInterval,
+    options.url,
+    options.body,
+    options.page,
+    options.limit,
     queryClient,
     queryKey,
   ]);
@@ -140,5 +158,158 @@ export const useChatMessages = <TMessage = unknown>(
     error: connectionError,
     reconnect,
     disconnect,
+  };
+};
+
+export interface UseChatStreamOptions {
+  url?: string;
+  page?: number;
+  limit?: number;
+  retryInterval?: number;
+  onToken?: (token: string) => void;
+  onMessage?: (message: AiMessages) => void;
+  onDone?: () => void;
+  onError?: (error: unknown) => void;
+}
+
+export interface UseChatStreamResult {
+  streamingText: string;
+  streamingMessageId: string | null;
+  isStreaming: boolean;
+  error: unknown;
+  startStreaming: () => Promise<void>;
+  stopStreaming: () => void;
+}
+
+export const useChatStream = (
+  chatId: string | null,
+  options: UseChatStreamOptions = {},
+): UseChatStreamResult => {
+  const [streamingText, setStreamingText] = useState("");
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+    null,
+  );
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamError, setStreamError] = useState<unknown>(null);
+  const connectionRef = useRef<SSEConnection | null>(null);
+
+  const {
+    url,
+    page: pageParam,
+    limit,
+    retryInterval = 5000,
+    onToken,
+    onDone,
+    onError,
+  } = options;
+
+  const stopStreaming = useCallback(() => {
+    if (connectionRef.current) {
+      connectionRef.current.disconnect();
+      connectionRef.current = null;
+      console.log("Streaming stopped successfully.");
+    }
+
+    setIsStreaming(false);
+    setStreamingText("");
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      stopStreaming();
+    };
+  }, [stopStreaming]);
+
+  const startStreaming = useCallback(async () => {
+    if (!chatId) return;
+
+    stopStreaming();
+    setStreamingText("");
+    setStreamingMessageId(null);
+    setStreamError(null);
+    setIsStreaming(true);
+
+    const connection = createSSE<ChatEvent>({
+      endpoint: url ?? ENDPOINTS.CHAT_BOT_STREAM,
+      params: {
+        chatId,
+        page: pageParam,
+        limit,
+      },
+      retryInterval,
+      parser: (message) => {
+        if (!message.data) return null;
+
+        try {
+          return JSON.parse(message.data) as ChatEvent;
+        } catch (error) {
+          console.error("Failed to parse SSE message:", error);
+          return null;
+        }
+      },
+      onConnectStart: () => {
+        setIsStreaming(true);
+      },
+      onOpen: () => {
+        setIsStreaming(true);
+      },
+      onClose: () => {
+        setIsStreaming(false);
+      },
+      onError: (error) => {
+        setStreamError(error);
+        onError?.(error);
+        stopStreaming();
+      },
+      onMessage: (incoming) => {
+        if (!incoming) return;
+
+        switch (incoming.type) {
+          case "token": {
+            setStreamingText((prev) => prev + incoming.value);
+            onToken?.(incoming.value);
+            break;
+          }
+          case "done": {
+            setStreamingMessageId(incoming.value);
+            setIsStreaming(false);
+            onDone?.();
+            stopStreaming();
+            break;
+          }
+          default:
+            break;
+        }
+      },
+    });
+
+    connectionRef.current = connection;
+
+    try {
+      await connection.connect();
+    } catch (error) {
+      setStreamError(error);
+      onError?.(error);
+      stopStreaming();
+    }
+  }, [
+    chatId,
+    limit,
+    onDone,
+    onError,
+    onToken,
+    pageParam,
+    retryInterval,
+    url,
+    stopStreaming,
+  ]);
+
+  return {
+    streamingText,
+    streamingMessageId,
+    isStreaming,
+    error: streamError,
+    startStreaming,
+    stopStreaming,
   };
 };
